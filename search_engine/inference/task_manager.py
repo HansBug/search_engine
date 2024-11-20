@@ -20,7 +20,7 @@ next_action_schema = {
     "required": ["action", "reason"]
 }
 
-system_prompt = """
+SYSTEM_PROMPT = """
 As a professional web researcher, your primary objective is to fully comprehend the user's query, conduct thorough web searches to gather the necessary information, and provide an appropriate response.
 To achieve this, you must first analyze the user's input and determine the optimal course of action. You have two options at your disposal:
 1. "proceed": If the provided information is sufficient to address the query effectively, choose this option to proceed with the research and formulate a response.
@@ -34,7 +34,7 @@ Make your choice wisely to ensure that you fulfill your mission as a web researc
 
 def task_manager(messages: List[dict], model: str = 'gpt-4-turbo') -> Optional[Dict]:
     client = get_openai_client()
-    full_messages = [{"role": "system", "content": system_prompt}]
+    full_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     full_messages.extend(messages)
 
     functions = [{
