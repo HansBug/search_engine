@@ -1,0 +1,5 @@
+requests
+hbutils
+hfutils
+openai
+httpx[socks]
