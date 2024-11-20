@@ -4,21 +4,25 @@ from typing import List, Dict, Optional
 
 from ..openai import get_openai_client
 
-next_action_schema = {
-    "type": "object",
-    "properties": {
-        "action": {
-            "type": "string",
-            "enum": ["proceed", "inquire"],
-            "description": "The next action to take"
+FUNCTIONS = [{
+    "name": "determine_action",
+    "description": "Determine the next action based on user input",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "enum": ["proceed", "inquire"],
+                "description": "The next action to take"
+            },
+            "reason": {
+                "type": "string",
+                "description": "Explanation for why this action was chosen"
+            }
         },
-        "reason": {
-            "type": "string",
-            "description": "Explanation for why this action was chosen"
-        }
-    },
-    "required": ["action", "reason"]
-}
+        "required": ["action", "reason"]
+    }
+}]
 
 SYSTEM_PROMPT = """
 As a professional web researcher, your primary objective is to fully comprehend the user's query, conduct thorough web searches to gather the necessary information, and provide an appropriate response.
@@ -37,16 +41,11 @@ def task_manager(messages: List[dict], model: str = 'gpt-4-turbo') -> Optional[D
     full_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     full_messages.extend(messages)
 
-    functions = [{
-        "name": "determine_action",
-        "description": "Determine the next action based on user input",
-        "parameters": next_action_schema
-    }]
     response = client.chat.completions.create(
         model=model,
         messages=full_messages,
-        functions=functions,
-        function_call={"name": "determine_action"}
+        functions=FUNCTIONS,
+        function_call={"name": "determine_action"},
     )
 
     message = response.choices[0].message
@@ -59,7 +58,7 @@ def task_manager(messages: List[dict], model: str = 'gpt-4-turbo') -> Optional[D
 if __name__ == '__main__':
     pprint(task_manager(
         messages=[
-            {"role": "user", "content": "What are the key features of the latest iPhone model?"},
-            # {"role": "user", "content": "What's the best smartphone for me?"},
+            # {"role": "user", "content": "What are the key features of the latest iPhone model?"},
+            {"role": "user", "content": "What's the best smartphone for me?"},
         ],
     ))
